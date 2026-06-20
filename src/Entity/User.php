@@ -58,9 +58,10 @@ class User
         return $this->name;
     }
 
-    public function setName(?string $name): void
+    public function setName(?string $name): self
     {
         $this->name = $name;
+        return $this;
     }
 
     public function getDescription(): ?string
@@ -68,9 +69,10 @@ class User
         return $this->description;
     }
 
-    public function setDescription(?string $description): void
+    public function setDescription(?string $description): self
     {
         $this->description = $description;
+        return $this;
     }
 
     public function getMedias(): Collection
@@ -78,9 +80,10 @@ class User
         return $this->medias;
     }
 
-    public function setMedias(Collection $medias): void
+    public function setMedias(Collection $medias): self
     {
         $this->medias = $medias;
+        return $this;
     }
 
     public function isAdmin(): bool
@@ -88,8 +91,9 @@ class User
         return $this->admin;
     }
 
-    public function setAdmin(bool $admin): void
+    public function setAdmin(bool $admin): self
     {
         $this->admin = $admin;
+        return $this;
     }
 }

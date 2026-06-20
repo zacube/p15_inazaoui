@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\AlbumRepository;
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\Types\Self_;
 
 #[ORM\Entity(repositoryClass: AlbumRepository::class)]
 class Album
@@ -26,8 +27,9 @@ class Album
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(string $name): self
     {
         $this->name = $name;
+        return $this;
     }
 }
