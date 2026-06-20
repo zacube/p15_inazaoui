@@ -18,3 +18,11 @@
 .phpunit.result.cache
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
+
+###> symfony/phpunit-codecoverage ###
+/public/test-coverage
+###< symfony/phpunit-codecoverage ###
+
+###> phpstan/phpstan ###
+phpstan.neon
+###< phpstan/phpstan ###
