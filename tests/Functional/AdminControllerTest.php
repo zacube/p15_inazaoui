@@ -27,7 +27,7 @@ final class AdminControllerTest extends WebTestCase
         $this->client->loginUser($testAdmin);
     }
 
-    // teste les fonctions de AlbumController
+    // teste les fonctions de AlbumController.php
     public function testAdminAlbumIndexIsAccessibleForAdmin(): void
     {
         $url = $this->router->generate('admin_album_index');
@@ -51,26 +51,6 @@ final class AdminControllerTest extends WebTestCase
         $this->client->submit($form);
 
         $this->assertResponseRedirects();
-    }
-
-    public function testAdminAlbumDelete(): void
-    {
-        $entityManager = $this->client
-            ->getContainer()
-            ->get('doctrine.orm.entity_manager');
-
-        $album = new Album();
-        $album->setName('Album de test');
-
-        $entityManager->persist($album);
-        $entityManager->flush();
-
-        $mediaRepository = $entityManager->getRepository(Album::class);
-
-        $this->assertNotNull(
-            $mediaRepository->find($album->getId())
-        );
-
     }
 
 
@@ -108,10 +88,34 @@ final class AdminControllerTest extends WebTestCase
         $this->assertSame('Nouveau nom', $album->getName());
     }
 
+    public function testAdminAlbumDelete(): void
+    {
+        $entityManager = $this->client
+            ->getContainer()
+            ->get('doctrine.orm.entity_manager');
+
+        $album = new Album();
+        $album->setName('Album de test');
+        $entityManager->persist($album);
+        $entityManager->flush();
+
+        $crawler = $this->client->request('GET', $this->router->generate('admin_album_index'));
+        // Trouve la ligne contenant l'album créé et le lien "Supprimer"
+        $row = $crawler->filter('tr:contains("Album de test")');
+        $deleteLink = $row->filter('a.btn-danger:contains("Supprimer")')->link();
+        $this->client->click($deleteLink);
+
+        $this->assertResponseRedirects();
+
+        $this->assertNull(
+            $entityManager->getRepository(Album::class)->find($album->getId())
+        );
+    }
 
 
 
-    // teste les fonctions de MediaController
+
+    // teste les fonctions de MediaController.php
     public function testAdminMediaIndexIsAccessibleForAdmin(): void
     {
         $url = $this->router->generate('admin_media_index');
@@ -149,20 +153,43 @@ final class AdminControllerTest extends WebTestCase
 
     public function testAdminMediaDelete(): void
     {
-        $entityManager = $this->client
-            ->getContainer()
-            ->get('doctrine.orm.entity_manager');
+        // Crée un média de test via le formulaire
+        $crawler = $this->client->request('GET', $this->router->generate('admin_media_add'));
+        $form = $crawler->selectButton('Ajouter')->form();
 
-        $media = new Media();
-        $media->setTitle('Media de test');
-        $media->setPath(__DIR__);
-        $entityManager->persist($media);
-        $entityManager->flush();
+        $file = new UploadedFile(
+            __DIR__.'/test.jpg',
+            'test.jpg',
+            'image/jpeg',
+            null,
+            true
+        );
 
-        $mediaRepository = $entityManager->getRepository(Media::class);
+        $form['media[title]'] = 'Titre de test';
+        $form['media[file]'] = $file;
+        $this->client->submit($form);
+        $this->assertResponseRedirects();
+        $this->client->followRedirect();
 
-        $this->assertNotNull(
-            $mediaRepository->find($media->getId())
+        // Vérifie que le média est en base
+        $entityManager = $this->client->getContainer()->get('doctrine.orm.entity_manager');
+        $media = $entityManager->getRepository(Media::class)->findOneBy(['title' => 'Titre de test']);
+        $this->assertNotNull($media, 'Le média "Titre de test" n\'a pas été créé en base.');
+
+        $mediaId = $media->getId();
+
+        // Supprime via la route directement (pour éviter les erreurs dues à la pagination)
+        $this->client->request(
+            'GET',
+            $this->router->generate('admin_media_delete', ['id' => $mediaId])
+        );
+        $this->assertResponseRedirects();
+
+        // Vérifie que le média a bien été supprimé
+        $entityManager->clear();
+        $this->assertNull(
+            $entityManager->getRepository(Media::class)->find($mediaId),
+            'Le média n\'a pas été supprimé.'
         );
     }
 }
