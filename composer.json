@@ -94,6 +94,7 @@
         }
     },
     "require-dev": {
+        "dama/doctrine-test-bundle": "^8.2",
         "doctrine/doctrine-fixtures-bundle": "^3.6",
         "phpstan/phpstan": "^2.2",
         "phpunit/phpunit": "^9.5",
