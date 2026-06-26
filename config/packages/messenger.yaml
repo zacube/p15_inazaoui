@@ -1,0 +1,4 @@
+# config/packages/messenger.yaml
+framework:
+  messenger:
+    reset_on_message: true
