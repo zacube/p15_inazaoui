@@ -66,6 +66,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setName(?string $name): self
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -77,6 +78,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setDescription(?string $description): self
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -88,6 +90,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setMedias(Collection $medias): self
     {
         $this->medias = $medias;
+
         return $this;
     }
 
@@ -99,10 +102,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setAdmin(bool $admin): self
     {
         $this->admin = $admin;
+
         return $this;
     }
-
-
 
     /**
      * A visual identifier that represents this user.
@@ -125,7 +127,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see UserInterface
      */
-
     public function getRoles(): array
     {
         $roles = ['ROLE_USER'];

@@ -20,12 +20,10 @@ class SetPasswordCommand extends Command
 {
     public function __construct(
         private UserPasswordHasherInterface $passwordHasher,
-        private EntityManagerInterface $entityManager
-    )
-    {
+        private EntityManagerInterface $entityManager,
+    ) {
         parent::__construct();
     }
-
 
     protected function configure(): void
     {
@@ -39,7 +37,7 @@ class SetPasswordCommand extends Command
         $plainPassword = $input->getArgument('password');
 
         $users = $this->entityManager->getRepository(User::class)->findBy(['admin' => false]);
-        foreach ($users as $user){
+        foreach ($users as $user) {
             $hashed = $this->passwordHasher->hashPassword($user, $plainPassword);
             $user->setPassword($hashed);
         }

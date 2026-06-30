@@ -14,11 +14,11 @@ final class AlbumFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         // Crée 3 albums
-        for ($i = 0; $i < self::NB_ALBUMS; $i++) {
+        for ($i = 0; $i < self::NB_ALBUMS; ++$i) {
             $album = (new Album())
-                ->setName('album' . ($i + 1));
+                ->setName('album'.($i + 1));
             $manager->persist($album);
-            $this->addReference(self::ALBUM_REFERENCE_PREFIX . $i, $album);
+            $this->addReference(self::ALBUM_REFERENCE_PREFIX.$i, $album);
         }
 
         $manager->flush();

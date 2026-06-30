@@ -20,12 +20,10 @@ class SetAdminPasswordCommand extends Command
 {
     public function __construct(
         private UserPasswordHasherInterface $passwordHasher,
-        private EntityManagerInterface $entityManager
-    )
-    {
+        private EntityManagerInterface $entityManager,
+    ) {
         parent::__construct();
     }
-
 
     protected function configure(): void
     {
@@ -43,6 +41,7 @@ class SetAdminPasswordCommand extends Command
         $admin = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
         if (!$admin) {
             $io->error(sprintf('Aucun utilisateur trouvé pour %s', $email));
+
             return Command::FAILURE;
         }
         $hashed = $this->passwordHasher->hashPassword($admin, $plainPassword);

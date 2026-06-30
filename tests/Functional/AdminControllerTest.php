@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
-
 use App\Entity\Album;
 use App\Entity\Media;
 use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\Security\Core\User\InMemoryUser;
 
 final class AdminControllerTest extends WebTestCase
 {
@@ -20,7 +18,7 @@ final class AdminControllerTest extends WebTestCase
     public function setUp(): void
     {
         $this->client = static::createClient();
-      $userRepository = $this->client->getContainer()->get('doctrine.orm.entity_manager')->getRepository(User::class);
+        $userRepository = $this->client->getContainer()->get('doctrine.orm.entity_manager')->getRepository(User::class);
         $testAdmin = $userRepository->findOneBy(['email' => 'ina@zaoui.com']);
         $this->router = static::getContainer()->get('router');
 
@@ -53,7 +51,6 @@ final class AdminControllerTest extends WebTestCase
         $this->assertResponseRedirects();
     }
 
-
     public function testAdminAlbumUpdate(): void
     {
         $entityManager = $this->client
@@ -77,7 +74,6 @@ final class AdminControllerTest extends WebTestCase
         $this->client->submit($form);
 
         $this->assertResponseRedirects();
-
 
         $id = $album->getId();
         $entityManager->clear(); // efface les entités conservées en mémoire par Doctrine
@@ -111,9 +107,6 @@ final class AdminControllerTest extends WebTestCase
             $entityManager->getRepository(Album::class)->find($album->getId())
         );
     }
-
-
-
 
     // teste les fonctions de MediaController.php
     public function testAdminMediaIndexIsAccessibleForAdmin(): void

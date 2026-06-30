@@ -15,8 +15,8 @@ final class UserFixtures extends Fixture
 
     public function __construct(
         private UserPasswordHasherInterface $passwordHasher,
-    )
-    {}
+    ) {
+    }
 
     public function load(ObjectManager $manager): void
     {
@@ -28,14 +28,14 @@ final class UserFixtures extends Fixture
         $manager->persist($admin);
         $this->addReference(self::ADMIN_REFERENCE, $admin);
 
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 5; ++$i) {
             $guest = new User();
-            $guest->setName('Invité ' . $i)
-                ->setEmail('invite+' . $i . '@example.com')
+            $guest->setName('Invité '.$i)
+                ->setEmail('invite+'.$i.'@example.com')
                 ->setAdmin(false)
                 ->setPassword($this->passwordHasher->hashPassword($guest, 'aze'));
             $manager->persist($guest);
-            $this->addReference(self::USER_REFERENCE_PREFIX . $i, $guest);
+            $this->addReference(self::USER_REFERENCE_PREFIX.$i, $guest);
         }
 
         $manager->flush();

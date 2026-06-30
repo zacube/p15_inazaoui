@@ -14,10 +14,10 @@ class Media
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "medias", fetch: "EAGER")]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'medias', fetch: 'EAGER')]
     private ?User $user = null;
 
-    #[ORM\ManyToOne(targetEntity: Album::class, fetch: "EAGER")]
+    #[ORM\ManyToOne(targetEntity: Album::class, fetch: 'EAGER')]
     private ?Album $album = null;
 
     #[ORM\Column]
@@ -41,6 +41,7 @@ class Media
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
         return $this;
     }
 
@@ -52,6 +53,7 @@ class Media
     public function setPath(string $path): self
     {
         $this->path = $path;
+
         return $this;
     }
 
@@ -63,6 +65,7 @@ class Media
     public function setTitle(string $title): self
     {
         $this->title = $title;
+
         return $this;
     }
 
@@ -74,6 +77,7 @@ class Media
     public function setFile(?UploadedFile $file): self
     {
         $this->file = $file;
+
         return $this;
     }
 
@@ -85,6 +89,7 @@ class Media
     public function setAlbum(?Album $album): self
     {
         $this->album = $album;
+
         return $this;
     }
 }

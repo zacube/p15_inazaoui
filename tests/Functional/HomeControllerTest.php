@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
-
 use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -16,7 +15,7 @@ use Symfony\Component\Routing\RouterInterface;
 final class HomeControllerTest extends WebTestCase
 {
     private ?KernelBrowser $client = null;
-    Private User $testGuest;
+    private User $testGuest;
     private ?RouterInterface $router;
 
     public function setUp(): void
@@ -26,6 +25,7 @@ final class HomeControllerTest extends WebTestCase
         $this->testGuest = $userRepository->findOneBy(['admin' => false]);
         $this->router = HomeControllerTest::getContainer()->get('router');
     }
+
     public function providePublicUrls(): array
     {
         return [

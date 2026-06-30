@@ -27,18 +27,19 @@ class HomeController extends AbstractController
         $guests = $userRepository->findBy(['admin' => false]);
 
         return $this->render('front/guests.html.twig', [
-            'guests' => $guests
+            'guests' => $guests,
         ]);
     }
 
     /**
      * @Route("/guest/{id}", name="guest")
      */
-    public function guest(UserRepository $userRepository, int $id):Response
+    public function guest(UserRepository $userRepository, int $id): Response
     {
         $guest = $userRepository->find($id);
+
         return $this->render('front/guest.html.twig', [
-            'guest' => $guest
+            'guest' => $guest,
         ]);
     }
 
@@ -54,10 +55,11 @@ class HomeController extends AbstractController
         $medias = $album
             ? $mediaRepository->findByAlbum($album)
             : $mediaRepository->findByUser($user);
+
         return $this->render('front/portfolio.html.twig', [
             'albums' => $albums,
             'album' => $album,
-            'medias' => $medias
+            'medias' => $medias,
         ]);
     }
 
