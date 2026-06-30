@@ -7,6 +7,7 @@ namespace App\Tests\Functional;
 
 use App\Entity\Album;
 use App\Entity\Media;
+use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -19,9 +20,8 @@ final class AdminControllerTest extends WebTestCase
     public function setUp(): void
     {
         $this->client = static::createClient();
-/*      $userRepository = $this->client->getContainer()->get('doctrine.orm.entity_manager')->getRepository(User::class);
-        $this->testAdmin = $userRepository->findOneBy(['email' => 'ina@zaoui.com']);*/
-        $testAdmin =  new InMemoryUser('ina', '$2y$13$7JS0ehfU8vZhB3Q8o1sPGuoQxkiPGXRGgrAizmNfI5Sgy.Dqt9xoW', ['ROLE_ADMIN']);
+      $userRepository = $this->client->getContainer()->get('doctrine.orm.entity_manager')->getRepository(User::class);
+        $testAdmin = $userRepository->findOneBy(['email' => 'ina@zaoui.com']);
         $this->router = static::getContainer()->get('router');
 
         $this->client->loginUser($testAdmin);
