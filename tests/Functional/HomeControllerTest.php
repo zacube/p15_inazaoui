@@ -26,6 +26,9 @@ final class HomeControllerTest extends WebTestCase
         $this->router = HomeControllerTest::getContainer()->get('router');
     }
 
+    /**
+     * @return array<string[]>
+     */
     public function providePublicUrls(): array
     {
         return [

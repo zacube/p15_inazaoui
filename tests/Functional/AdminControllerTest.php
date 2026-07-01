@@ -10,10 +10,12 @@ use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Routing\RouterInterface;
 
 final class AdminControllerTest extends WebTestCase
 {
     private ?KernelBrowser $client = null;
+    private RouterInterface $router;
 
     public function setUp(): void
     {
@@ -138,6 +140,7 @@ final class AdminControllerTest extends WebTestCase
 
         // soumet le formulaire
         $form['media[title]'] = 'Titre de test';
+        /** @phpstan-ignore-next-line */
         $form['media[file]'] = $file;
         $this->client->submit($form);
 
@@ -159,6 +162,7 @@ final class AdminControllerTest extends WebTestCase
         );
 
         $form['media[title]'] = 'Titre de test';
+        /** @phpstan-ignore-next-line */
         $form['media[file]'] = $file;
         $this->client->submit($form);
         $this->assertResponseRedirects();

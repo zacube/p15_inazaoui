@@ -33,6 +33,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description;
 
+    /** @var Collection<int, Media> */
     #[ORM\OneToMany(targetEntity: Media::class, mappedBy: 'user')]
     private Collection $medias;
 
@@ -82,11 +83,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /** @return  Collection<int, Media> $medias */
     public function getMedias(): Collection
     {
         return $this->medias;
     }
 
+    /** @param  Collection<int, Media> $medias */
     public function setMedias(Collection $medias): self
     {
         $this->medias = $medias;
