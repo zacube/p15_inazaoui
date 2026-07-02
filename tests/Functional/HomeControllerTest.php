@@ -16,7 +16,7 @@ final class HomeControllerTest extends WebTestCase
 {
     private ?KernelBrowser $client = null;
     private User $testGuest;
-    private ?RouterInterface $router;
+    private RouterInterface $router;
 
     public function setUp(): void
     {

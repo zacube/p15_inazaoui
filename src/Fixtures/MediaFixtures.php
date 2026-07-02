@@ -2,6 +2,7 @@
 
 namespace App\Fixtures;
 
+use App\Entity\Album;
 use App\Entity\Media;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -19,12 +20,12 @@ final class MediaFixtures extends Fixture implements DependentFixtureInterface
         $mediaNumber = 1;
 
         /** @var User $admin */
-        $admin = $this->getReference(UserFixtures::ADMIN_REFERENCE);
+        $admin = $this->getReference(UserFixtures::ADMIN_REFERENCE, User::class);
 
         // Médias pour l'admin, répartis dans les 3 albums
         for ($i = 1; $i <= self::NB_MEDIAS_ADMIN; ++$i) {
             $albumIndex = ($i - 1) % AlbumFixtures::NB_ALBUMS;
-            $album = $this->getReference(AlbumFixtures::ALBUM_REFERENCE_PREFIX.$albumIndex);
+            $album = $this->getReference(AlbumFixtures::ALBUM_REFERENCE_PREFIX.$albumIndex, Album::class);
             $num = sprintf('%04d', $mediaNumber);
             $media = (new Media())
                 ->setUser($admin)
@@ -39,7 +40,7 @@ final class MediaFixtures extends Fixture implements DependentFixtureInterface
         // Médias des invités, sans album
         for ($u = 1; $u <= UserFixtures::NB_INVITES; ++$u) {
             /** @var User $guest */
-            $guest = $this->getReference(UserFixtures::USER_REFERENCE_PREFIX.$u);
+            $guest = $this->getReference(UserFixtures::USER_REFERENCE_PREFIX.$u, User::class);
 
             $nbMedias = random_int(self::NB_MEDIAS_INVITE_MIN, self::NB_MEDIAS_INVITE_MAX);
 

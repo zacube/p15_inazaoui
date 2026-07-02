@@ -140,7 +140,7 @@ final class AdminControllerTest extends WebTestCase
 
         // soumet le formulaire
         $form['media[title]'] = 'Titre de test';
-        /** @phpstan-ignore-next-line */
+        /* @phpstan-ignore-next-line */
         $form['media[file]'] = $file;
         $this->client->submit($form);
 
@@ -162,7 +162,7 @@ final class AdminControllerTest extends WebTestCase
         );
 
         $form['media[title]'] = 'Titre de test';
-        /** @phpstan-ignore-next-line */
+        /* @phpstan-ignore-next-line */
         $form['media[file]'] = $file;
         $this->client->submit($form);
         $this->assertResponseRedirects();
