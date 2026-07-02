@@ -12,8 +12,8 @@ return RectorConfig::configure()
         __DIR__.'/tests',
     ])
     ->withSets([
-        SymfonySetList::SYMFONY_54,
-        SymfonySetList::SYMFONY_60,
+        SymfonySetList::SYMFONY_64,
+        SymfonySetList::SYMFONY_70,
     ])
     ->withRules([
         AnnotationToAttributeRector::class,
