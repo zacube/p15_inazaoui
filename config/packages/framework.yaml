@@ -18,6 +18,10 @@ framework:
     php_errors:
         log: true
 
+    profiler:
+        enabled: '%kernel.debug%'
+        collect_serializer_data: true
+
 when@test:
     framework:
         test: true

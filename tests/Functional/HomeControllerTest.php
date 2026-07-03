@@ -29,7 +29,7 @@ final class HomeControllerTest extends WebTestCase
     /**
      * @return array<string[]>
      */
-    public function providePublicUrls(): array
+    public static function providePublicUrls(): array
     {
         return [
             ['home'],
