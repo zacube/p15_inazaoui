@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use App\Entity\User;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,9 +40,7 @@ final class HomeControllerTest extends WebTestCase
         ];
     }
 
-    /**
-     * @dataProvider providePublicUrls
-     */
+    #[DataProvider('providePublicUrls')]
     public function testPublicRoutesAreAccessible(string $routeName): void
     {
         $url = $this->router->generate($routeName);

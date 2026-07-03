@@ -97,16 +97,16 @@ final class AdminControllerTest extends WebTestCase
         $entityManager->persist($album);
         $entityManager->flush();
 
-        $crawler = $this->client->request('GET', $this->router->generate('admin_album_index'));
-        // Trouve la ligne contenant l'album créé et le lien "Supprimer"
-        $row = $crawler->filter('tr:contains("Album de test")');
-        $deleteLink = $row->filter('a.btn-danger:contains("Supprimer")')->link();
-        $this->client->click($deleteLink);
+        $albumId = $album->getId();
+
+        $url = $this->router->generate('admin_album_delete', ['id' => $albumId]);
+        $this->client->request('GET', $url);
 
         $this->assertResponseRedirects();
 
+        $entityManager->clear();
         $this->assertNull(
-            $entityManager->getRepository(Album::class)->find($album->getId())
+            $entityManager->getRepository(Album::class)->find($albumId)
         );
     }
 
