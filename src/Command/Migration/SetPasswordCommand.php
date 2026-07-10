@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\Migration;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -13,10 +13,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[AsCommand(
-    name: 'app:set-admin-password',
-    description: 'Initialise le mot de passe pour un admin (email)',
+    name: 'app:set-password',
+    description: 'Initialise le mot de passe de tous les utilisateurs non-admin',
 )]
-class SetAdminPasswordCommand extends Command
+class SetPasswordCommand extends Command
 {
     public function __construct(
         private UserPasswordHasherInterface $passwordHasher,
@@ -28,28 +28,22 @@ class SetAdminPasswordCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('password', InputArgument::REQUIRED, 'Le mot de passe générique en clair')
-            ->addArgument('email', InputArgument::REQUIRED, 'L\'email de l\'admin');
+            ->addArgument('password', InputArgument::REQUIRED, 'Le mot de passe générique en clair');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $email = $input->getArgument('email');
         $plainPassword = $input->getArgument('password');
 
-        $admin = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
-        if (!$admin) {
-            $io->error(sprintf('Aucun utilisateur trouvé pour %s', $email));
-
-            return Command::FAILURE;
+        $users = $this->entityManager->getRepository(User::class)->findBy(['admin' => false]);
+        foreach ($users as $user) {
+            $hashed = $this->passwordHasher->hashPassword($user, $plainPassword);
+            $user->setPassword($hashed);
         }
-        $hashed = $this->passwordHasher->hashPassword($admin, $plainPassword);
-        $admin->setPassword($hashed);
-
         $this->entityManager->flush();
 
-        $io->success(sprintf('administrateur %s mis à jour.', $admin->getEmail()));
+        $io->success(sprintf('%d utilisateurs mis à jour.', count($users)));
 
         return Command::SUCCESS;
     }

@@ -189,4 +189,73 @@ final class AdminControllerTest extends WebTestCase
             'Le média n\'a pas été supprimé.'
         );
     }
+
+    public function testAdminMediaIndexAsNonAdminFiltersOwnMediasOnly(): void
+    {
+        $entityManager = $this->client->getContainer()->get('doctrine.orm.entity_manager');
+
+        $nonAdmin = new User();
+        $nonAdmin->setEmail('non-admin-index-test@example.com');
+        $nonAdmin->setName('Non Admin Index Test');
+        $nonAdmin->setPassword('fake_password_for_testing');
+        $nonAdmin->setAdmin(false);
+        $entityManager->persist($nonAdmin);
+        $entityManager->flush();
+
+        $this->client->loginUser($nonAdmin);
+
+        $this->client->request('GET', $this->router->generate('admin_media_index'));
+
+        $this->assertResponseIsSuccessful();
+    }
+
+    public function testAdminMediaDeleteRemovesFileFromDisk(): void
+    {
+        // Crée un média de test via le formulaire, identique à testAdminMediaDelete()
+        $crawler = $this->client->request('GET', $this->router->generate('admin_media_add'));
+        $form = $crawler->selectButton('Ajouter')->form();
+
+        $file = new UploadedFile(
+            __DIR__.'/test.jpg',
+            'test.jpg',
+            'image/jpeg',
+            null,
+            true
+        );
+
+        $form['media[title]'] = 'Titre suppression fichier';
+        /* @phpstan-ignore-next-line */
+        $form['media[file]'] = $file;
+        $this->client->submit($form);
+        $this->assertResponseRedirects();
+        $this->client->followRedirect();
+
+        // Vérifie que le média est en base
+        $entityManager = $this->client->getContainer()->get('doctrine.orm.entity_manager');
+        $media = $entityManager->getRepository(Media::class)->findOneBy(['title' => 'Titre suppression fichier']);
+        $this->assertNotNull($media, 'Le média "Titre suppression fichier" n\'a pas été créé en base.');
+
+        $mediaId = $media->getId();
+        $path = $media->getPath();
+
+        // Vérifie que le fichier existe bien physiquement avant suppression
+        $this->assertFileExists($path, 'Le fichier uploadé devrait exister avant suppression.');
+
+        // Supprime via la route directement
+        $this->client->request(
+            'GET',
+            $this->router->generate('admin_media_delete', ['id' => $mediaId])
+        );
+        $this->assertResponseRedirects();
+
+        // Vérifie que le média a bien été supprimé en base
+        $entityManager->clear();
+        $this->assertNull(
+            $entityManager->getRepository(Media::class)->find($mediaId),
+            'Le média n\'a pas été supprimé.'
+        );
+
+        // Vérifie que le fichier a bien été supprimé du disque (couvre la ligne unlink())
+        $this->assertFileDoesNotExist($path, 'Le fichier physique aurait dû être supprimé.');
+    }
 }

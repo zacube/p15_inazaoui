@@ -10,8 +10,14 @@
     <server name="SYMFONY_PHPUNIT_VERSION" value="11.5"/>
   </php>
   <testsuites>
-    <testsuite name="Project Test Suite">
+    <testsuite name="all">
       <directory>tests</directory>
+    </testsuite>
+    <testsuite name="Functional">
+      <directory>tests/Functional</directory>
+    </testsuite>
+    <testsuite name="Unit">
+      <directory>tests/Unit</directory>
     </testsuite>
   </testsuites>
   <extensions>
@@ -21,5 +27,9 @@
     <include>
       <directory suffix=".php">src</directory>
     </include>
+    <exclude>
+      <directory>src/Fixtures</directory>
+      <directory>src/Command/Migration</directory>
+    </exclude>
   </source>
 </phpunit>

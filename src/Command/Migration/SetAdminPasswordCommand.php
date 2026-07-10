@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\Migration;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -13,10 +13,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[AsCommand(
-    name: 'app:set-password',
-    description: 'Initialise le mot de passe de tous les utilisateurs non-admin',
+    name: 'app:set-admin-password',
+    description: 'Initialise le mot de passe pour un admin (email)',
 )]
-class SetPasswordCommand extends Command
+class SetAdminPasswordCommand extends Command
 {
     public function __construct(
         private UserPasswordHasherInterface $passwordHasher,
@@ -28,22 +28,28 @@ class SetPasswordCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('password', InputArgument::REQUIRED, 'Le mot de passe générique en clair');
+            ->addArgument('password', InputArgument::REQUIRED, 'Le mot de passe générique en clair')
+            ->addArgument('email', InputArgument::REQUIRED, 'L\'email de l\'admin');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+        $email = $input->getArgument('email');
         $plainPassword = $input->getArgument('password');
 
-        $users = $this->entityManager->getRepository(User::class)->findBy(['admin' => false]);
-        foreach ($users as $user) {
-            $hashed = $this->passwordHasher->hashPassword($user, $plainPassword);
-            $user->setPassword($hashed);
+        $admin = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+        if (!$admin) {
+            $io->error(sprintf('Aucun utilisateur trouvé pour %s', $email));
+
+            return Command::FAILURE;
         }
+        $hashed = $this->passwordHasher->hashPassword($admin, $plainPassword);
+        $admin->setPassword($hashed);
+
         $this->entityManager->flush();
 
-        $io->success(sprintf('%d utilisateurs mis à jour.', count($users)));
+        $io->success(sprintf('administrateur %s mis à jour.', $admin->getEmail()));
 
         return Command::SUCCESS;
     }
