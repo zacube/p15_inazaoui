@@ -18,6 +18,7 @@ class MediaController extends AbstractController
     public function index(Request $request, MediaRepository $mediaRepository): Response
     {
         $page = $request->query->getInt('page', 1);
+        $perPage = 25;
 
         $criteria = [];
 
@@ -28,15 +29,16 @@ class MediaController extends AbstractController
         $medias = $mediaRepository->findBy(
             $criteria,
             ['id' => 'ASC'],
-            25,
-            25 * ($page - 1)
+            $perPage,
+            $perPage * ($page - 1)
         );
-        $total = $mediaRepository->count([]);
+        $total = $mediaRepository->count($criteria);
 
         return $this->render('admin/media/index.html.twig', [
             'medias' => $medias,
             'total' => $total,
             'page' => $page,
+            'perPage' => $perPage,
         ]);
     }
 
