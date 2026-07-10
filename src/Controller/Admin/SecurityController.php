@@ -20,4 +20,10 @@ class SecurityController extends AbstractController
             'error' => $error,
         ]);
     }
+    #[Route('/logout', name: 'admin_logout')]
+    public function logout(): void
+    {
+        // Ce code ne sera jamais exécuté
+        throw new \LogicException('This should never be reached!');
+    }
 }
