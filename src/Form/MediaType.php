@@ -5,6 +5,8 @@ namespace App\Form;
 use App\Entity\Album;
 use App\Entity\Media;
 use App\Entity\User;
+use App\Repository\UserRepository;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -29,13 +31,24 @@ class MediaType extends AbstractType
             $builder
                 ->add('user', EntityType::class, [
                     'label' => 'Utilisateur',
-                    'required' => false,
+                    'required' => true,
                     'class' => User::class,
                     'choice_label' => 'name',
+                    'placeholder' => '— Sélectionner un utilisateur —',
+                    'choice_attr' => function (User $user): array {
+                        $isAdmin = in_array('ROLE_ADMIN', $user->getRoles(), true);
+                        return [
+                            'data-is-admin' => $isAdmin ? '1' : '0',
+                        ];
+                    },
+                    'query_builder' => function (UserRepository $userRepository): QueryBuilder {
+                        return $userRepository->createQueryBuilder('u')
+                            ->orderBy('u.name', 'ASC');
+                    },
                 ])
                 ->add('album', EntityType::class, [
                     'label' => 'Album',
-                    'required' => false,
+                    'required' => true,
                     'class' => Album::class,
                     'choice_label' => 'name',
                 ])
@@ -49,5 +62,6 @@ class MediaType extends AbstractType
             'data_class' => Media::class,
             'is_admin' => false,
         ]);
+        $resolver->setAllowedTypes('is_admin', 'bool');
     }
 }

@@ -6,12 +6,35 @@
         <a href="{{ path('admin_media_index') }}" class="btn btn-primary">Retour</a>
     </div>
     {{ form_start(form) }}
-        {{ form_row(form.user) }}
-        {% if is_granted('ROLE_ADMIN') %}
+        {% if is_admin %}
+            {{ form_row(form.user) }}
             {{ form_row(form.album) }}
-            {{ form_row(form.title) }}
         {% endif %}
+        {{ form_row(form.title) }}
         {{ form_row(form.file) }}
         <button type="submit" class="btn btn-primary">Ajouter</button>
     {{ form_end(form) }}
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const userSelect = document.querySelector('#media_user');
+            const albumRow = document.querySelector('#media_album')?.closest('.form-group, .mb-3');
+
+            if (!userSelect || !albumRow) return;
+
+            function toggleAlbum() {
+                const selectedOption = userSelect.options[userSelect.selectedIndex];
+                const isAdmin = selectedOption.getAttribute('data-is-admin') === '1';
+                albumRow.style.display = isAdmin ? '' : 'none';
+            }
+
+            // Au chargement
+            toggleAlbum();
+
+            // Au changement
+            userSelect.addEventListener('change', toggleAlbum);
+        });
+    </script>
+
 {% endblock %}

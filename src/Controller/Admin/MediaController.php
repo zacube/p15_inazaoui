@@ -46,7 +46,8 @@ class MediaController extends AbstractController
     public function add(Request $request, EntityManagerInterface $entityManager): Response
     {
         $media = new Media();
-        $form = $this->createForm(MediaType::class, $media, ['is_admin' => $this->isGranted('ROLE_ADMIN')]);
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
+        $form = $this->createForm(MediaType::class, $media, ['is_admin' => $isAdmin]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -57,6 +58,9 @@ class MediaController extends AbstractController
                 }
                 $media->setUser($user);
             }
+            if ($media->getUser() && !in_array('ROLE_ADMIN', $media->getUser()->getRoles(), true)) {
+                $media->setAlbum(null);
+            }
             $media->setPath('uploads/'.md5(uniqid()).'.'.$media->getFile()->guessExtension());
             $media->getFile()->move('uploads/', $media->getPath());
             $entityManager->persist($media);
@@ -65,7 +69,10 @@ class MediaController extends AbstractController
             return $this->redirectToRoute('admin_media_index');
         }
 
-        return $this->render('admin/media/add.html.twig', ['form' => $form->createView()]);
+        return $this->render('admin/media/add.html.twig', [
+            'form' => $form->createView(),
+            'is_admin' => $isAdmin,
+        ]);
     }
 
     #[Route('/admin/media/delete/{id}', name: 'admin_media_delete')]
