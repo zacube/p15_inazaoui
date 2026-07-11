@@ -167,6 +167,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setMustChangePassword(bool $mustChangePassword): static
     {
         $this->mustChangePassword = $mustChangePassword;
+
         return $this;
     }
 

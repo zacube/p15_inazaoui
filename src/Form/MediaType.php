@@ -37,6 +37,7 @@ class MediaType extends AbstractType
                     'placeholder' => '— Sélectionner un utilisateur —',
                     'choice_attr' => function (User $user): array {
                         $isAdmin = in_array('ROLE_ADMIN', $user->getRoles(), true);
+
                         return [
                             'data-is-admin' => $isAdmin ? '1' : '0',
                         ];

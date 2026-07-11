@@ -31,7 +31,7 @@ class GuestController extends AbstractController
             'total' => $total,
             'page' => $page,
             'perPage' => $perPage,
-            ]);
+        ]);
     }
 
     #[Route('/admin/guest/add', name: 'admin_guest_add')]
