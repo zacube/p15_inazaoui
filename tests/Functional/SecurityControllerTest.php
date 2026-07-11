@@ -44,7 +44,7 @@ class SecurityControllerTest extends WebTestCase
         ]);
         $client->submit($form);
 
-        $this->assertResponseRedirects('/admin/album');
+        $this->assertResponseRedirects('/admin/media');
         $client->followRedirect();
         $this->assertResponseIsSuccessful();
     }
