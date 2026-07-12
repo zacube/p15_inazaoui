@@ -8,11 +8,13 @@
 /var/
 /vendor/
 /config/reference.php
+uploads/
 ###< symfony/framework-bundle ###
 
 ###> phpunit/phpunit ###
 /phpunit.xml
 .phpunit.result.cache
+.phpunit.cache/
 ###< phpunit/phpunit ###
 
 ###> symfony/phpunit-codecoverage ###
