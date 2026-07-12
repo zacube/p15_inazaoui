@@ -1,0 +1,148 @@
+name: CI
+
+# --- TRIGGERS ---
+# Le workflow se déclenche :
+# - sur chaque push vers main (donc aussi après un merge de PR)
+# - sur chaque pull request ciblant main (avant même le merge)
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+
+  # =========================================================
+  # JOB 1 — Lint (php-cs-fixer)
+  # =========================================================
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Installer PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer
+
+      - name: Cache des dépendances Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          # La clé change si composer.lock change -> cache invalidé automatiquement
+          key: composer-${{ hashFiles('composer.lock') }}
+
+      - name: Installer les dépendances
+        run: composer install --prefer-dist --no-progress
+
+      - name: Vérifier le formatage (sans corriger)
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff --config=.php-cs-fixer.dist.php
+
+  # =========================================================
+  # JOB 2 — Analyse statique (PHPStan)
+  # =========================================================
+  static-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Installer PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer
+
+      - name: Cache des dépendances Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+
+      - name: Installer les dépendances
+        run: composer install --prefer-dist --no-progress
+
+      - name: Lancer PHPStan
+        run: vendor/bin/phpstan analyse --memory-limit=1G
+
+  # =========================================================
+  # JOB 3 — Tests + Coverage
+  # =========================================================
+  tests:
+    runs-on: ubuntu-latest
+
+    # Service annexe : une vraie base PostgreSQL, démarrée en conteneur
+    # à côté du runner, accessible sur localhost:5432 pendant tout le job.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: app
+        ports:
+          - 5432:5432
+        # Attend que PostgreSQL soit prêt à accepter des connexions
+        # avant de laisser les steps suivants démarrer.
+        options: >-
+          --health-cmd="pg_isready -U app"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Installer PHP (avec pcov pour le coverage)
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pgsql, pdo_pgsql
+          coverage: pcov
+          tools: composer
+
+      - name: Cache des dépendances Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+
+      - name: Installer les dépendances
+        run: composer install --prefer-dist --no-progress
+
+      - name: Créer la base de test (app_test, via le suffixe Symfony)
+        env:
+          APP_ENV: test
+          # Le nom de base ici est "app" volontairement : Symfony/Doctrine
+          # ajoute automatiquement le suffixe "_test" en environnement test
+          # (dbname_suffix dans config/packages/doctrine.yaml). La commande
+          # ci-dessous crée donc réellement "app_test", pas "app".
+          DATABASE_URL: "postgresql://app:app@127.0.0.1:5432/app?serverVersion=17&charset=utf8"
+        run: php bin/console doctrine:database:create --env=test --if-not-exists
+
+      - name: Appliquer les migrations sur la base de test
+        env:
+          APP_ENV: test
+          DATABASE_URL: "postgresql://app:app@127.0.0.1:5432/app?serverVersion=17&charset=utf8"
+        run: php bin/console doctrine:migrations:migrate --env=test --no-interaction
+
+      - name: Charger les fixtures sur la base de test
+        env:
+          APP_ENV: test
+          DATABASE_URL: "postgresql://app:app@127.0.0.1:5432/app?serverVersion=17&charset=utf8"
+        run: php bin/console doctrine:fixtures:load --env=test --no-interaction
+
+      - name: Lancer PHPUnit avec coverage
+        env:
+          APP_ENV: test
+          DATABASE_URL: "postgresql://app:app@127.0.0.1:5432/app?serverVersion=17&charset=utf8"
+        run: vendor/bin/phpunit --coverage-clover=coverage.xml
+
+      - name: Vérifier le seuil de coverage
+        run: |
+          composer require --dev rregeer/phpunit-coverage-check --no-interaction --no-progress
+          vendor/bin/coverage-check coverage.xml 85
+        # 90 = seuil minimum en %. Le job échoue automatiquement si en dessous.
