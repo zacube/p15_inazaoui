@@ -8,6 +8,7 @@ use App\Form\MediaType;
 use App\Repository\MediaRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -40,6 +41,12 @@ class MediaController extends AbstractController
             'page' => $page,
             'perPage' => $perPage,
         ]);
+    }
+
+    #[Route('/admin', name: 'admin_index')]
+    public function admin(): RedirectResponse
+    {
+        return $this->redirectToRoute('admin_media_index');
     }
 
     #[Route('/admin/media/add', name: 'admin_media_add')]
