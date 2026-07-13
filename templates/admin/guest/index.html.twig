@@ -22,7 +22,7 @@
                 <td>{{ guest.description }}</td>
                 <td>
                     <a href="{{ path('admin_guest_block', {id: guest.id}) }}" class="btn btn-warning">Bloquer</a>
-                    <a href="{{ path('admin_guest_delete', {id: guest.id}) }}" class="btn btn-danger">Supprimer</a>
+                    <a href="{{ path('admin_guest_delete', {id: guest.id}) }}" class="btn btn-danger"  onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet invité ?')">Supprimer</a>
                 </td>
             </tr>
         {% endfor %}
