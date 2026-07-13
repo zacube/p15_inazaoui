@@ -41,9 +41,9 @@ class GuestController extends AbstractController
     #[Route('/admin/guest/add', name: 'admin_guest_add')]
     public function add(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
-        $user = new User;
+        $user = new User();
 
-        $file = dirname(__DIR__, 3) . '/var/dev_passwords.log';
+        $file = dirname(__DIR__, 3).'/var/dev_passwords.log';
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
@@ -65,7 +65,6 @@ class GuestController extends AbstractController
         return $this->render('admin/guest/add.html.twig', [
             'form' => $form->createView(),
         ]);
-
     }
 
     #[Route('/admin/guest/block', name: 'admin_guest_block')]
@@ -82,19 +81,19 @@ class GuestController extends AbstractController
         $entityManager->flush();
 
         // 1. Lire le fichier ligne par ligne
-        $file = dirname(__DIR__, 3) . '/var/dev_passwords.log';
+        $file = dirname(__DIR__, 3).'/var/dev_passwords.log';
         $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         $nom = $guest->getName();
 
         // 2. Filtrer : garder toutes les lignes sauf celle qui correspond à $nom
         $lines = array_filter($lines, function ($line) use ($nom) {
             $parts = explode('|', $line);
+
             return $parts[0] !== $nom;
         });
 
         // 3. Réécrire le fichier sans la ligne supprimée
-        file_put_contents($file, implode("\n", $lines) . "\n", LOCK_EX);
-
+        file_put_contents($file, implode("\n", $lines)."\n", LOCK_EX);
 
         return $this->redirectToRoute('admin_guest_index');
     }
