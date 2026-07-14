@@ -72,6 +72,7 @@ class GuestController extends AbstractController
     #[Route('/admin/guest/block/{id}', name: 'admin_guest_block', methods: [Request::METHOD_POST])]
     public function block(int $id, Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
     {
+        $page = $request->request->getInt('page', 1);
         $guest = $userRepository->find($id);
         if (!$guest) {
             throw $this->createNotFoundException('Invité introuvable.');
@@ -91,12 +92,13 @@ class GuestController extends AbstractController
         $entityManager->persist($guest);
         $entityManager->flush();
 
-        return $this->redirectToRoute('admin_guest_index');
+        return $this->redirectToRoute('admin_guest_index', ['page' => $page]);
     }
 
-    #[Route('/admin/guest/delete/{id}', name: 'admin_guest_delete')]
+    #[Route('/admin/guest/delete/{id}', name: 'admin_guest_delete', methods: [Request::METHOD_POST])]
     public function delete(int $id, Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
     {
+        $page = $request->request->getInt('page', 1);
         $guest = $userRepository->find($id);
         if (!$guest) {
             throw $this->createNotFoundException('Invité introuvable.');
@@ -127,6 +129,6 @@ class GuestController extends AbstractController
         file_put_contents($file, implode("\n", $lines)."\n", LOCK_EX);
         // @codeCoverageIgnoreEnd
 
-        return $this->redirectToRoute('admin_guest_index');
+        return $this->redirectToRoute('admin_guest_index', ['page' => $page]);
     }
 }

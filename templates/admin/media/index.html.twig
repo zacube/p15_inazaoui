@@ -27,7 +27,11 @@
                         <td>{{ media.album.name ?? '' }}</td>
                     {% endif %}
                     <td>
-                        <a href="{{ path('admin_media_delete', {id: media.id}) }}" class="btn btn-danger">Supprimer</a>
+                        <form method="post" action="{{ path('admin_media_delete', {id: media.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete-media-' ~ media.id) }}">
+                            <input type="hidden" name="page" value="{{ app.request.query.get('page', 1) }}">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce média ?')">Supprimer</button>
+                        </form>
                     </td>
                 </tr>
             {% endfor %}

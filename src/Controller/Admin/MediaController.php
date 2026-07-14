@@ -82,12 +82,18 @@ class MediaController extends AbstractController
         ]);
     }
 
-    #[Route('/admin/media/delete/{id}', name: 'admin_media_delete')]
-    public function delete(int $id, MediaRepository $mediaRepository, EntityManagerInterface $entityManager): Response
+    #[Route('/admin/media/delete/{id}', name: 'admin_media_delete', methods: [Request::METHOD_POST])]
+    public function delete(int $id, Request $request, MediaRepository $mediaRepository, EntityManagerInterface $entityManager): Response
     {
+        $page = $request->request->getInt('page', 1);
+
         $media = $mediaRepository->find($id);
         if (!$media) {
             throw $this->createNotFoundException('Média introuvable');
+        }
+        if (!$this->isCsrfTokenValid('delete-media-'.$id, $request->request->get('_token')))
+        {
+            return $this->redirectToRoute('admin_media_index');
         }
 
         $path = $media->getPath();
@@ -98,6 +104,6 @@ class MediaController extends AbstractController
             unlink($path);
         }
 
-        return $this->redirectToRoute('admin_media_index');
+        return $this->redirectToRoute('admin_media_index', ['page' => $page]);
     }
 }

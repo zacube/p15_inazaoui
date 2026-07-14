@@ -24,10 +24,12 @@
                     {% if not guest.owner %}
                         <form method="post" action="{{ path('admin_guest_block', {id: guest.id}) }}">
                             <input type="hidden" name="_token" value="{{ csrf_token('block-user-' ~ guest.id) }}">
+                            <input type="hidden" name="page" value="{{ app.request.query.get('page', 1) }}">
                             <button type="submit" class="btn {{ guest.isBlocked ? 'btn-warning' : 'btn-light' }}">{{ guest.isBlocked ? 'Débloquer' : 'Bloquer' }}</button>
                         </form>
                         <form method="post" action="{{ path('admin_guest_delete', {id: guest.id}) }}">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete-user-' ~ guest.id) }}">
+                            <input type="hidden" name="page" value="{{ app.request.query.get('page', 1) }}">
                             <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet invité ?')">Supprimer</button>
                         </form>
 
