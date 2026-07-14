@@ -3,7 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\User;
-use App\Form\UserType;
+use App\Form\GuestType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -44,7 +44,7 @@ class GuestController extends AbstractController
         $user = new User();
 
         $file = dirname(__DIR__, 3).'/var/dev_passwords.log';
-        $form = $this->createForm(UserType::class, $user);
+        $form = $this->createForm(GuestType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

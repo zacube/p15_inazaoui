@@ -62,9 +62,9 @@ final class AdminGuestControllerTest extends WebTestCase
         $form = $crawler->selectButton('Ajouter')->form();
 
         // soumet le formulaire
-        $form['user[name]'] = 'Nom de test';
-        $form['user[email]'] = 'email@de.test';
-        $form['user[description]'] = 'description de test';
+        $form['guest[name]'] = 'Nom de test';
+        $form['guest[email]'] = 'email@de.test';
+        $form['guest[description]'] = 'description de test';
         $this->client->submit($form);
 
         $this->assertResponseRedirects();
@@ -74,9 +74,9 @@ final class AdminGuestControllerTest extends WebTestCase
     {
         $crawler = $this->client->request('GET', $this->router->generate('admin_guest_add'));
         $form = $crawler->selectButton('Ajouter')->form();
-        $form['user[name]'] = 'Nom de test 2';
-        $form['user[email]'] = 'email2@de.test';
-        $form['user[description]'] = 'description de test';
+        $form['guest[name]'] = 'Nom de test 2';
+        $form['guest[email]'] = 'email2@de.test';
+        $form['guest[description]'] = 'description de test';
         $this->client->submit($form);
 
         $guest = $this->entityManager->getRepository(User::class)
@@ -95,9 +95,9 @@ final class AdminGuestControllerTest extends WebTestCase
         $form = $crawler->selectButton('Ajouter')->form();
 
         // soumet le formulaire
-        $form['user[name]'] = 'Nom de test';
-        $form['user[email]'] = 'email@de.test';
-        $form['user[description]'] = 'description de test';
+        $form['guest[name]'] = 'Nom de test';
+        $form['guest[email]'] = 'email@de.test';
+        $form['guest[description]'] = 'description de test';
         $this->client->submit($form);
         $this->assertResponseRedirects();
         $this->client->followRedirect();
