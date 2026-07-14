@@ -5,10 +5,12 @@ namespace App\Controller\Admin;
 use App\Entity\Album;
 use App\Form\AlbumType;
 use App\Repository\AlbumRepository;
+use App\Repository\MediaRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
 class AlbumController extends AbstractController
@@ -55,10 +57,20 @@ class AlbumController extends AbstractController
     }
 
     #[Route('/admin/album/delete/{id}', name: 'admin_album_delete')]
-    public function delete(int $id, AlbumRepository $albumRepository, EntityManagerInterface $entityManager): Response
+    public function delete(int $id, AlbumRepository $albumRepository, MediaRepository $mediaRepository, EntityManagerInterface $entityManager): Response
     {
-        $media = $albumRepository->find($id);
-        $entityManager->remove($media);
+        $album = $albumRepository->find($id);
+
+        if (!$album) {
+            throw $this->createNotFoundException('Album introuvable.');
+        }
+
+        $mediaCount = $mediaRepository->count(['album' => $album]);
+        if ($mediaCount > 0) {
+            throw new ConflictHttpException('Impossible de supprimer un album contenant des médias.');
+        }
+
+        $entityManager->remove($album);
         $entityManager->flush();
 
         return $this->redirectToRoute('admin_album_index');

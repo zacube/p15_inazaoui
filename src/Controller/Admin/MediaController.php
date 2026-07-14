@@ -8,6 +8,7 @@ use App\Form\MediaType;
 use App\Repository\MediaRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -40,6 +41,12 @@ class MediaController extends AbstractController
             'page' => $page,
             'perPage' => $perPage,
         ]);
+    }
+
+    #[Route('/admin', name: 'admin_index')]
+    public function admin(): RedirectResponse
+    {
+        return $this->redirectToRoute('admin_media_index');
     }
 
     #[Route('/admin/media/add', name: 'admin_media_add')]
@@ -79,11 +86,16 @@ class MediaController extends AbstractController
     public function delete(int $id, MediaRepository $mediaRepository, EntityManagerInterface $entityManager): Response
     {
         $media = $mediaRepository->find($id);
+        if (!$media) {
+            throw $this->createNotFoundException('Média introuvable');
+        }
+
+        $path = $media->getPath();
         $entityManager->remove($media);
         $entityManager->flush();
 
-        if (file_exists($media->getPath())) {
-            unlink($media->getPath());
+        if (file_exists($path)) {
+            unlink($path);
         }
 
         return $this->redirectToRoute('admin_media_index');

@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\MediaRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 #[ORM\Entity(repositoryClass: MediaRepository::class)]
 class Media
@@ -15,14 +16,17 @@ class Media
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'medias', fetch: 'EAGER')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
     private ?User $user = null;
 
     #[ORM\ManyToOne(targetEntity: Album::class, fetch: 'EAGER')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Album $album = null;
 
     #[ORM\Column]
     private string $path;
 
+    #[NotBlank]
     #[ORM\Column]
     private string $title;
 

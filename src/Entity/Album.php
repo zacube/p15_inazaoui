@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\AlbumRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 #[ORM\Entity(repositoryClass: AlbumRepository::class)]
 class Album
@@ -13,6 +14,7 @@ class Album
     #[ORM\Column]
     private ?int $id = null;
 
+    #[NotBlank]
     #[ORM\Column]
     private string $name;
 

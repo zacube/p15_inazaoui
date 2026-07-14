@@ -8,6 +8,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -21,9 +23,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private bool $admin = false;
 
+    #[NotBlank]
     #[ORM\Column]
     private ?string $name;
 
+    #[NotBlank]
+    #[Assert\Email]
+    #[Assert\Length(max: 180)]
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
@@ -37,7 +43,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $description;
 
     /** @var Collection<int, Media> */
-    #[ORM\OneToMany(targetEntity: Media::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: Media::class, mappedBy: 'user', cascade: ['remove'])]
     private Collection $medias;
 
     public function __construct()

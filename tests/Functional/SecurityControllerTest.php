@@ -2,6 +2,7 @@
 
 namespace App\Tests\Functional;
 
+use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class SecurityControllerTest extends WebTestCase
@@ -47,5 +48,22 @@ class SecurityControllerTest extends WebTestCase
         $this->assertResponseRedirects('/admin/media');
         $client->followRedirect();
         $this->assertResponseIsSuccessful();
+    }
+
+    public function testLogoutInvalidatesSessionAndRedirects(): void
+    {
+        $client = static::createClient();
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $user = $userRepository->findOneByEmail('ina@zaoui.com');
+
+        $client->loginUser($user);
+        $client->request('GET', '/admin');
+        $this->assertResponseRedirects('/admin/media'); // connecté, redirigé vers l'index
+
+        $client->request('GET', '/logout');
+        $this->assertResponseRedirects(); // logout redirige (peu importe où, ici)
+
+        $client->request('GET', '/admin');
+        $this->assertResponseRedirects('/login'); // déconnecté, renvoyé au login
     }
 }
