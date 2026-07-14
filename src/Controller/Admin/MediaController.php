@@ -86,11 +86,16 @@ class MediaController extends AbstractController
     public function delete(int $id, MediaRepository $mediaRepository, EntityManagerInterface $entityManager): Response
     {
         $media = $mediaRepository->find($id);
+        if (!$media) {
+            throw $this->createNotFoundException('Média introuvable');
+        }
+
+        $path = $media->getPath();
         $entityManager->remove($media);
         $entityManager->flush();
 
-        if (file_exists($media->getPath())) {
-            unlink($media->getPath());
+        if (file_exists($path)) {
+            unlink($path);
         }
 
         return $this->redirectToRoute('admin_media_index');

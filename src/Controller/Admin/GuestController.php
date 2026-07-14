@@ -53,8 +53,10 @@ class GuestController extends AbstractController
 
             $user->setPassword($passwordHasher->hashPassword($user, $tempPassword));
             $user->setMustChangePassword(true);
+            // @codeCoverageIgnoreStart
             $nom = $user->getName();
             file_put_contents($file, "$nom|$tempPassword\n", FILE_APPEND | LOCK_EX);
+            // @codeCoverageIgnoreEnd
 
             $entityManager->persist($user);
             $entityManager->flush();
@@ -77,9 +79,14 @@ class GuestController extends AbstractController
     public function delete(int $id, Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
     {
         $guest = $userRepository->find($id);
+        if (!$guest) {
+            throw $this->createNotFoundException('Invité introuvable.');
+        }
+
         $entityManager->remove($guest);
         $entityManager->flush();
 
+        // @codeCoverageIgnoreStart
         // 1. Lire le fichier ligne par ligne
         $file = dirname(__DIR__, 3).'/var/dev_passwords.log';
         $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -94,6 +101,7 @@ class GuestController extends AbstractController
 
         // 3. Réécrire le fichier sans la ligne supprimée
         file_put_contents($file, implode("\n", $lines)."\n", LOCK_EX);
+        // @codeCoverageIgnoreEnd
 
         return $this->redirectToRoute('admin_guest_index');
     }

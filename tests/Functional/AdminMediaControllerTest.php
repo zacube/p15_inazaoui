@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 use App\Entity\Media;
 use App\Entity\User;
 use App\Repository\UserRepository;
@@ -109,6 +108,13 @@ final class AdminMediaControllerTest extends WebTestCase
             $entityManager->getRepository(Media::class)->find($mediaId),
             'Le média n\'a pas été supprimé.'
         );
+    }
+
+    public function testAdminMediaDeleteWithUnknownIdReturns404(): void
+    {
+        $url = $this->router->generate('admin_media_delete', ['id' => 999999]);
+        $this->client->request('GET', $url);
+        $this->assertResponseStatusCodeSame(404);
     }
 
     public function testAdminMediaIndexAsNonAdminFiltersOwnMediasOnly(): void
