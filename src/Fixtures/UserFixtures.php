@@ -24,6 +24,7 @@ final class UserFixtures extends Fixture
         $admin->setName('Ina Zaoui')
             ->setEmail('ina@zaoui.com')
             ->setAdmin(true)
+            ->setOwner(true)
             ->setPassword($this->passwordHasher->hashPassword($admin, 'password'));
         $manager->persist($admin);
         $this->addReference(self::ADMIN_REFERENCE, $admin);
