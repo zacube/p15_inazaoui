@@ -69,10 +69,29 @@ class GuestController extends AbstractController
         ]);
     }
 
-    #[Route('/admin/guest/block', name: 'admin_guest_block')]
-    public function block(Request $request, UserRepository $userRepository): Response
+    #[Route('/admin/guest/block/{id}', name: 'admin_guest_block', methods: [Request::METHOD_POST])]
+    public function block(int $id, Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
     {
-        return $this->render('admin/guest/block.html.twig');
+        $guest = $userRepository->find($id);
+        if (!$guest) {
+            throw $this->createNotFoundException('Invité introuvable.');
+        }
+
+        if (!$this->isCsrfTokenValid('block-user-'.$id, $request->request->get('_token')))
+        {
+            return $this->redirectToRoute('admin_guest_index');
+        }
+
+        if ($guest->isOwner()) {
+            throw $this->createAccessDeniedException('Impossible de bloquer le propriétaire du compte.');
+        }
+
+        $guest->setBlocked(!$guest->isBlocked());
+
+        $entityManager->persist($guest);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('admin_guest_index');
     }
 
     #[Route('/admin/guest/delete/{id}', name: 'admin_guest_delete')]
@@ -81,6 +100,11 @@ class GuestController extends AbstractController
         $guest = $userRepository->find($id);
         if (!$guest) {
             throw $this->createNotFoundException('Invité introuvable.');
+        }
+
+        if (!$this->isCsrfTokenValid('delete-user-'.$id, $request->request->get('_token')))
+        {
+            return $this->redirectToRoute('admin_guest_index');
         }
 
         $entityManager->remove($guest);
