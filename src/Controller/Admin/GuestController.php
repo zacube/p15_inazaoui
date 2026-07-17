@@ -18,7 +18,8 @@ class GuestController extends AbstractController
     public function index(Request $request, UserRepository $userRepository): Response
     {
         $page = $request->query->getInt('page', 1);
-        $perPage = 25;
+        // pagination à 25 par défaut, limitée à 100 au max)
+        $perPage = min($request->query->getInt('perPage', 25), 100);
 
         $criteria = [];
 

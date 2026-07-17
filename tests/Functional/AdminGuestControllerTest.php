@@ -154,13 +154,6 @@ final class AdminGuestControllerTest extends WebTestCase
 
     public function testAdminGuestDelete(): void
     {
-        $this->markTestSkipped('Difficulté à générer un token CSRF valide dans ce contexte de test — à investiguer plus tard.');
-    }
-
-    // TODO testAdminGuestDelete désactivé : la génération d'un token CSRF valide en dehors du rendu réel d'un formulaire (Twig) s'est révélée trop complexe à mettre en place dans ce test fonctionnel (session non disponible via le token manager, formulaire non trouvé sur la bonne page de pagination). À reprendre si besoin d'une couverture complète sur ce cas précis.
-    /*
-    public function testAdminGuestDelete(): void
-    {
         // Crée un invité de test via le formulaire
         $crawler = $this->client->request('GET', $this->router->generate('admin_guest_add'));
         $form = $crawler->selectButton('Ajouter')->form();
@@ -179,11 +172,11 @@ final class AdminGuestControllerTest extends WebTestCase
 
         $guestId = $guest->getId();
 
-        // Supprime via la route directement (pour éviter les erreurs dues à la pagination)
-        $this->client->request(
-            'POST',
-            $this->router->generate('admin_guest_delete', ['id' => $guestId])
-        );
+        // Récupère la page index avec un perPage large pour être sûr de trouver le formulaire
+        $crawler = $this->client->request('GET', $this->router->generate('admin_guest_index', ['perPage' => 1000]));
+        $deleteForm = $crawler->filter('form[action="'.$this->router->generate('admin_guest_delete', ['id' => $guestId]).'"]')->form();
+        $this->client->submit($deleteForm);
+
         $this->assertResponseRedirects();
 
         // Vérifie que le média a bien été supprimé
@@ -193,7 +186,7 @@ final class AdminGuestControllerTest extends WebTestCase
             'L\'invité n\'a pas été supprimé.'
         );
     }
-    */
+
 
     public function testAdminGuestDeleteWithUnknownIdReturns404(): void
     {
