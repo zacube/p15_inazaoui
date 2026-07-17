@@ -88,6 +88,70 @@ final class AdminGuestControllerTest extends WebTestCase
         $this->assertContains('ROLE_USER', $guest->getRoles());
     }
 
+    public function testAdminGuestBlockWithUnknownIdReturns404(): void
+    {
+        $url = $this->router->generate('admin_guest_block', ['id' => 999999]);
+        $this->client->request('POST', $url, ['_token' => 'peu-importe']);
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testAdminGuestBlockFailWithInvalidCsrf(): void
+    {
+        $guest = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'invite+1@example.com']);
+        $initialState = $guest->isBlocked();
+
+        $url = $this->router->generate('admin_guest_block', ['id' => $guest->getId()]);
+        $this->client->request('POST', $url, ['_token' => 'token-invalide']);
+
+        $this->assertResponseRedirects();
+
+        $this->entityManager->clear();
+        $guestAfter = $this->entityManager->getRepository(User::class)->find($guest->getId());
+        $this->assertSame($initialState, $guestAfter->isBlocked());
+    }
+
+    public function testAdminGuestBlock(): void
+    {
+        $guest = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'invite+1@example.com']);
+        $this->assertFalse($guest->isBlocked(), 'Condition : le guest ne doit pas être bloqué au départ.');
+
+        $crawler = $this->client->request('GET', $this->router->generate('admin_guest_index'));
+        $blockForm = $crawler->filter('form[action="'.$this->router->generate('admin_guest_block', ['id' => $guest->getId()]).'"]')->form();
+        $this->client->submit($blockForm);
+
+        $this->assertResponseRedirects();
+
+        $this->entityManager->clear();
+        $guestAfter = $this->entityManager->getRepository(User::class)->find($guest->getId());
+        $this->assertTrue($guestAfter->isBlocked());
+    }
+
+    public function testAdminGuestUnblock(): void
+    {
+        $guest = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'invite+1@example.com']); // adapter
+        $guest->setBlocked(true);
+        $this->entityManager->flush();
+
+        $crawler = $this->client->request('GET', $this->router->generate('admin_guest_index'));
+        $blockForm = $crawler->filter('form[action="'.$this->router->generate('admin_guest_block', ['id' => $guest->getId()]).'"]')->form();
+        $this->client->submit($blockForm);
+
+        $this->assertResponseRedirects();
+
+        $this->entityManager->clear();
+        $guestAfter = $this->entityManager->getRepository(User::class)->find($guest->getId());
+        $this->assertFalse($guestAfter->isBlocked());
+    }
+
+    public function testAdminGuestBlockOwnerIsForbidden(): void
+    {
+        $owner = $this->entityManager->getRepository(User::class)->findOneBy(['owner' => true]);
+
+        $crawler = $this->client->request('GET', $this->router->generate('admin_guest_index'));
+        // Le bouton ne doit pas exister dans le template pour le owner :
+        $this->assertCount(0, $crawler->filter('form[action="'.$this->router->generate('admin_guest_block', ['id' => $owner->getId()]).'"]'));
+    }
+
     public function testAdminGuestDelete(): void
     {
         // Crée un invité de test via le formulaire
@@ -108,11 +172,11 @@ final class AdminGuestControllerTest extends WebTestCase
 
         $guestId = $guest->getId();
 
-        // Supprime via la route directement (pour éviter les erreurs dues à la pagination)
-        $this->client->request(
-            'GET',
-            $this->router->generate('admin_guest_delete', ['id' => $guestId])
-        );
+        // Récupère la page index avec un perPage large pour être sûr de trouver le formulaire
+        $crawler = $this->client->request('GET', $this->router->generate('admin_guest_index', ['perPage' => 1000]));
+        $deleteForm = $crawler->filter('form[action="'.$this->router->generate('admin_guest_delete', ['id' => $guestId]).'"]')->form();
+        $this->client->submit($deleteForm);
+
         $this->assertResponseRedirects();
 
         // Vérifie que le média a bien été supprimé
@@ -126,7 +190,7 @@ final class AdminGuestControllerTest extends WebTestCase
     public function testAdminGuestDeleteWithUnknownIdReturns404(): void
     {
         $url = $this->router->generate('admin_guest_delete', ['id' => 999999]);
-        $this->client->request('GET', $url);
+        $this->client->request('POST', $url);
         $this->assertResponseStatusCodeSame(404);
     }
 

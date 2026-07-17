@@ -46,6 +46,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Media::class, mappedBy: 'user', cascade: ['remove'])]
     private Collection $medias;
 
+    #[ORM\Column(options: ['default' => 0])]
+    private bool $blocked = false;
+
+    #[ORM\Column(options: ['default' => 0])]
+    private bool $owner = false;
+
     public function __construct()
     {
         $this->medias = new ArrayCollection();
@@ -195,5 +201,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    public function isBlocked(): bool
+    {
+        return $this->blocked;
+    }
+
+    public function setBlocked(bool $blocked): static
+    {
+        $this->blocked = $blocked;
+
+        return $this;
+    }
+
+    public function isOwner(): bool
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(bool $owner): static
+    {
+        $this->owner = $owner;
+
+        return $this;
     }
 }
