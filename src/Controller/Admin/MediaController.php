@@ -92,8 +92,7 @@ class MediaController extends AbstractController
         if (!$media) {
             throw $this->createNotFoundException('Média introuvable');
         }
-        if (!$this->isCsrfTokenValid('delete-media-'.$id, $request->request->get('_token')))
-        {
+        if (!$this->isCsrfTokenValid('delete-media-'.$id, $request->request->get('_token'))) {
             return $this->redirectToRoute('admin_media_index');
         }
 

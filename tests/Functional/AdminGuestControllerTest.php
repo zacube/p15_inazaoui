@@ -187,7 +187,6 @@ final class AdminGuestControllerTest extends WebTestCase
         );
     }
 
-
     public function testAdminGuestDeleteWithUnknownIdReturns404(): void
     {
         $url = $this->router->generate('admin_guest_delete', ['id' => 999999]);

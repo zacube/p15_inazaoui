@@ -79,8 +79,7 @@ class GuestController extends AbstractController
             throw $this->createNotFoundException('Invité introuvable.');
         }
 
-        if (!$this->isCsrfTokenValid('block-user-'.$id, $request->request->get('_token')))
-        {
+        if (!$this->isCsrfTokenValid('block-user-'.$id, $request->request->get('_token'))) {
             return $this->redirectToRoute('admin_guest_index');
         }
 
@@ -105,8 +104,7 @@ class GuestController extends AbstractController
             throw $this->createNotFoundException('Invité introuvable.');
         }
 
-        if (!$this->isCsrfTokenValid('delete-user-'.$id, $request->request->get('_token')))
-        {
+        if (!$this->isCsrfTokenValid('delete-user-'.$id, $request->request->get('_token'))) {
             return $this->redirectToRoute('admin_guest_index');
         }
 
