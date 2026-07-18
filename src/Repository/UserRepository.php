@@ -46,7 +46,6 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         return $this->findOneBy(['admin' => $admin]);
     }
 
-
     /**
      * @return GuestListDto[]
      */

@@ -8,5 +8,6 @@ class GuestListDto
         public readonly int $id,
         public readonly string $name,
         public readonly int $mediaCount,
-    ) {}
+    ) {
+    }
 }
