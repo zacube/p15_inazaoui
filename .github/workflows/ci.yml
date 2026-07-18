@@ -146,3 +146,21 @@ jobs:
           composer require --dev rregeer/phpunit-coverage-check --no-interaction --no-progress
           vendor/bin/coverage-check coverage.xml 85
         # 90 = seuil minimum en %. Le job échoue automatiquement si en dessous.
+
+  # =========================================================
+  # JOB 4 — Audit de sécurité (composer audit)
+  # =========================================================
+  security-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Installer PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer
+
+      - name: Auditer les dépendances
+        run: composer audit --locked
