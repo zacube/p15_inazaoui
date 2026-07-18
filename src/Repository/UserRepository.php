@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\DTO\GuestListDto;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -43,5 +44,39 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     public function findOneByAdmin(bool $admin): ?User
     {
         return $this->findOneBy(['admin' => $admin]);
+    }
+
+    /**
+     * @return GuestListDto[]
+     */
+    public function findAllGuestsWithDto(int $perPage, int $offset): array
+    {
+        return $this->createQueryBuilder('u')
+            ->select('NEW App\DTO\GuestListDto(
+            u.id, 
+            u.name, 
+            (SELECT COUNT(m.id) FROM App\Entity\Media m WHERE m.user = u)
+        )')
+            ->where('u.admin = :admin')
+            ->andWhere('u.blocked = :blocked')
+            ->setParameter('admin', false)
+            ->setParameter('blocked', false)
+            ->orderBy('u.name', 'ASC')
+            ->setFirstResult($offset)
+            ->setMaxResults($perPage)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countAllGuests(): int
+    {
+        return (int) $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->where('u.admin = :admin')
+            ->andWhere('u.blocked = :blocked')
+            ->setParameter('admin', false)
+            ->setParameter('blocked', false)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }
