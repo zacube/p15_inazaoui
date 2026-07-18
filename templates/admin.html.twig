@@ -5,14 +5,13 @@
         <div class="row">
             <nav class="col-md-3 col-lg-2 d-none d-md-block bg-dark sidebar min-vh-100 p-4">
                 <div class="position-sticky">
-                    <h1 class="text-white">Admin</h1>
-                    <span class="text-white">[{{ app.user.name }}]</span>
+                    <h1 class="text-white mb-2">Admin</h1>
+                    <p class="text-white-50 d-flex justify-content-between mb-2 flex-wrap">
+                        <small>{{ app.user.name }}</small>
+                        <small><a class="text-decoration-none" href="{{ path('admin_logout') }}">Déconnexion</a></small>
+                    </p>
+                    <p class="text-center border border-secondary pb-1 pt-1"><a class="text-decoration-none" href="{{ path('home') }}">Voir le site</a></p>
                     <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ path('home') }}">
-                                Voir le site
-                            </a>
-                        </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ path('admin_media_index') }}">
                                 Medias
@@ -30,11 +29,6 @@
                                 </a>
                             </li>
                         {% endif %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ path('admin_logout') }}">
-                                Déconnexion
-                            </a>
-                        </li>
                     </ul>
                 </div>
             </nav>

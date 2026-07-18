@@ -78,6 +78,18 @@ a {
     border-top: 1px solid #333;
 }
 
+.guest a {
+    text-decoration: none;
+}
+
+.guest a:hover {
+    text-decoration: underline;
+}
+
+.guest a span{
+    text-decoration: underline;
+}
+
 .guest h4 {
     font-size: 18px;
     font-weight: 400;
