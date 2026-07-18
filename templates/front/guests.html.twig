@@ -16,4 +16,35 @@
             </div>
         </div>
     </div>
+    {# avec max(1,...), totalPages ne vaut jamais 0 → évite un bug dans la pagination s'il n'y apas de média à afficher  #}
+    {% set totalPages = max(1,(total / perPage)|round(0, 'ceil')) %}
+
+    <nav aria-label="Page navigation" class="nav-guest">
+        <ul class="pagination">
+            {% if page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ path('guests', {page: 1}) }}">Première page</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="{{ path('guests', {page: page - 1}) }}">Précédent</a>
+                </li>
+            {% endif %}
+
+            {% for i in range(max(1, page - 3), min(totalPages, page + 3)) %}
+                <li class="page-item {% if i == page %}active{% endif %}">
+                    <a class="page-link" href="{{ path('guests', {page: i}) }}">{{ i }}</a>
+                </li>
+            {% endfor %}
+
+            {% if page < totalPages %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ path('guests', {page: page + 1}) }}">Suivant</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="{{ path('guests', {page: totalPages}) }}">Dernière page</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+
 {% endblock %}

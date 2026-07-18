@@ -83,10 +83,10 @@ a {
 }
 
 .guest a:hover {
-    text-decoration: underline;
+    color: var(--bs-link-hover-color);
 }
 
-.guest a span{
+.guest a:hover span{
     text-decoration: underline;
 }
 
@@ -96,6 +96,28 @@ a {
     line-height: 23.44px;
     text-transform: uppercase;
     margin: 0;
+}
+
+.nav-guest .page-link {
+    border: 1px solid #333;
+    border-radius: 0;
+    font-size: 14px;
+    font-family: "DM Sans", sans-serif;
+}
+
+.nav-guest .pagination {
+    --bs-pagination-border-radius: 0;
+    --bs-pagination-color: #000;
+    --bs-pagination-hover-color: #000;
+    --bs-pagination-bg : none;
+    --bs-pagination-active-bg : #333;
+    --bs-pagination-hover-bg : #33333322;
+}
+
+.nav-guest .page-link:focus {
+     color: inherit;
+     background-color: inherit;
+    box-shadow: none;
 }
 
 .media img {

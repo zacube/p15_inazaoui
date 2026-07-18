@@ -46,10 +46,11 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         return $this->findOneBy(['admin' => $admin]);
     }
 
+
     /**
      * @return GuestListDto[]
      */
-    public function findAllGuestsWithDto(): array
+    public function findAllGuestsWithDto(int $perPage, int $offset): array
     {
         return $this->createQueryBuilder('u')
             ->select('NEW App\DTO\GuestListDto(
@@ -62,7 +63,21 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->setParameter('admin', false)
             ->setParameter('blocked', false)
             ->orderBy('u.name', 'ASC')
+            ->setFirstResult($offset)
+            ->setMaxResults($perPage)
             ->getQuery()
-            ->getArrayResult();
+            ->getResult();
+    }
+
+    public function countAllGuests(): int
+    {
+        return (int) $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->where('u.admin = :admin')
+            ->andWhere('u.blocked = :blocked')
+            ->setParameter('admin', false)
+            ->setParameter('blocked', false)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }
