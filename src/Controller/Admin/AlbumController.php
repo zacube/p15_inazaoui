@@ -10,7 +10,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
 class AlbumController extends AbstractController
@@ -34,6 +33,8 @@ class AlbumController extends AbstractController
             $entityManager->persist($album);
             $entityManager->flush();
 
+            $this->addFlash('success', 'Nouvel album créé');
+
             return $this->redirectToRoute('admin_album_index');
         }
 
@@ -50,6 +51,8 @@ class AlbumController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
+            $this->addFlash('success', "L'album a été mis à jour");
+
             return $this->redirectToRoute('admin_album_index');
         }
 
@@ -62,16 +65,23 @@ class AlbumController extends AbstractController
         $album = $albumRepository->find($id);
 
         if (!$album) {
-            throw $this->createNotFoundException('Album introuvable.');
+            $this->addFlash('warning', 'Album introuvable.');
+
+            return $this->redirectToRoute('admin_album_index');
         }
 
         $mediaCount = $mediaRepository->count(['album' => $album]);
         if ($mediaCount > 0) {
-            throw new ConflictHttpException('Impossible de supprimer un album contenant des médias.');
+            $this->addFlash('warning', 'Impossible de supprimer un album contenant des médias.');
+
+            return $this->redirectToRoute('admin_album_index');
         }
 
+        $name = $album->getName();
         $entityManager->remove($album);
         $entityManager->flush();
+
+        $this->addFlash('success', "Album $name supprimé");
 
         return $this->redirectToRoute('admin_album_index');
     }
