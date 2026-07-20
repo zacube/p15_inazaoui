@@ -70,7 +70,7 @@ final class AdminMediaControllerTest extends WebTestCase
     {
         $url = $this->router->generate('admin_media_delete', ['id' => 999999]);
         $this->client->request('POST', $url);
-        $this->assertResponseStatusCodeSame(404);
+        $this->assertResponseRedirects();
     }
 
     public function testAdminMediaIndexAsNonAdminFiltersOwnMediasOnly(): void

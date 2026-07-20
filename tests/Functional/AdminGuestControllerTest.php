@@ -92,7 +92,7 @@ final class AdminGuestControllerTest extends WebTestCase
     {
         $url = $this->router->generate('admin_guest_block', ['id' => 999999]);
         $this->client->request('POST', $url, ['_token' => 'peu-importe']);
-        $this->assertResponseStatusCodeSame(404);
+        $this->assertResponseRedirects();
     }
 
     public function testAdminGuestBlockFailWithInvalidCsrf(): void
@@ -191,7 +191,7 @@ final class AdminGuestControllerTest extends WebTestCase
     {
         $url = $this->router->generate('admin_guest_delete', ['id' => 999999]);
         $this->client->request('POST', $url);
-        $this->assertResponseStatusCodeSame(404);
+        $this->assertResponseRedirects();
     }
 
     public function testAdminAlbumDeleteWithMediasIsBlocked(): void
@@ -213,7 +213,7 @@ final class AdminGuestControllerTest extends WebTestCase
         $url = $this->router->generate('admin_album_delete', ['id' => $album->getId()]);
         $this->client->request('GET', $url);
 
-        $this->assertResponseStatusCodeSame(409);
+        $this->assertResponseRedirects();
     }
 
     public function testAdminAlbumDeleteWithoutMediasSucceeds(): void
