@@ -114,5 +114,17 @@ class UserTest extends TestCase
 
         $user->setAdmin(false);
         $this->assertFalse($user->isAdmin());
+
+        $user->setBlocked(false);
+        $this->assertFalse($user->isBlocked());
+
+        $user->setBlocked(true);
+        $this->assertTrue($user->isBlocked());
+
+        $user->setOwner(false);
+        $this->assertFalse($user->isOwner());
+
+        $user->setOwner(true);
+        $this->assertTrue($user->isOwner());
     }
 }

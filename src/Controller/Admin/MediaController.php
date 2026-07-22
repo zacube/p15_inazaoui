@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class MediaController extends AbstractController
 {
@@ -62,7 +63,7 @@ class MediaController extends AbstractController
             if (!$this->isGranted('ROLE_ADMIN')) {
                 $user = $this->getUser();
                 if (!$user instanceof User) {
-                    throw new \LogicException('User must be authenticated and of type User.');  // @codeCoverageIgnore
+                    throw new AccessDeniedException('User must be authenticated and of type User.');  // @codeCoverageIgnore
                 }
                 $media->setUser($user);
             }
@@ -73,6 +74,8 @@ class MediaController extends AbstractController
             $media->getFile()->move('uploads/', $media->getPath());
             $entityManager->persist($media);
             $entityManager->flush();
+
+            $this->addFlash('success', 'Le média a bien été ajouté');
 
             return $this->redirectToRoute('admin_media_index');
         }
@@ -88,14 +91,19 @@ class MediaController extends AbstractController
     {
         $page = $request->request->getInt('page', 1);
 
-        $media = $mediaRepository->find($id);
-        if (!$media) {
-            throw $this->createNotFoundException('Média introuvable');
-        }
         if (!$this->isCsrfTokenValid('delete-media-'.$id, $request->request->get('_token'))) {
-            return $this->redirectToRoute('admin_media_index');
+            $this->addFlash('error', 'Une erreur est survenue, veuillez recharger la page');
+
+            return $this->redirectToRoute('admin_guest_index');
         }
 
+        $media = $mediaRepository->find($id);
+        if (!$media) {
+            $this->addFlash('error', 'Une erreur est survenue, veuillez recharger la page');
+
+            return $this->redirectToRoute('admin_guest_index');
+        }
+        $name = $media->getTitle();
         $path = $media->getPath();
         $entityManager->remove($media);
         $entityManager->flush();
@@ -103,6 +111,8 @@ class MediaController extends AbstractController
         if (file_exists($path)) {
             unlink($path);
         }
+
+        $this->addFlash('success', "Invité $name supprimé");
 
         return $this->redirectToRoute('admin_media_index', ['page' => $page]);
     }

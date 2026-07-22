@@ -62,6 +62,8 @@ class GuestController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
+            $this->addFlash('success', "L'invité a bien été ajouté");
+
             return $this->redirectToRoute('admin_guest_index');
         }
 
@@ -74,17 +76,24 @@ class GuestController extends AbstractController
     public function block(int $id, Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
     {
         $page = $request->request->getInt('page', 1);
-        $guest = $userRepository->find($id);
-        if (!$guest) {
-            throw $this->createNotFoundException('Invité introuvable.');
-        }
 
         if (!$this->isCsrfTokenValid('block-user-'.$id, $request->request->get('_token'))) {
+            $this->addFlash('error', 'Une erreur est survenue, veuillez recharger la page');
+
+            return $this->redirectToRoute('admin_guest_index');
+        }
+
+        $guest = $userRepository->find($id);
+        if (!$guest) {
+            $this->addFlash('warning', 'Invité introuvable.');
+
             return $this->redirectToRoute('admin_guest_index');
         }
 
         if ($guest->isOwner()) {
-            throw $this->createAccessDeniedException('Impossible de bloquer le propriétaire du compte.');
+            $this->addFlash('warning', 'Impossible de bloquer le propriétaire du compte.');
+
+            return $this->redirectToRoute('admin_guest_index');
         }
 
         $guest->setBlocked(!$guest->isBlocked());
@@ -98,16 +107,20 @@ class GuestController extends AbstractController
     #[Route('/admin/guest/delete/{id}', name: 'admin_guest_delete', methods: [Request::METHOD_POST])]
     public function delete(int $id, Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
     {
-        $page = $request->request->getInt('page', 1);
-        $guest = $userRepository->find($id);
-        if (!$guest) {
-            throw $this->createNotFoundException('Invité introuvable.');
-        }
-
         if (!$this->isCsrfTokenValid('delete-user-'.$id, $request->request->get('_token'))) {
             return $this->redirectToRoute('admin_guest_index');
         }
 
+        $page = $request->request->getInt('page', 1);
+
+        $guest = $userRepository->find($id);
+        if (!$guest) {
+            $this->addFlash('warning', 'Invité introuvable.');
+
+            return $this->redirectToRoute('admin_guest_index');
+        }
+
+        $name = $guest->getName();
         $entityManager->remove($guest);
         $entityManager->flush();
 
@@ -117,16 +130,18 @@ class GuestController extends AbstractController
         $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         $nom = $guest->getName();
 
-        // 2. Filtrer : garder toutes les lignes sauf celle qui correspond à $nom
-        $lines = array_filter($lines, function ($line) use ($nom) {
+        // 2. Filtrer : garder toutes les lignes sauf celle qui correspond à $name
+        $lines = array_filter($lines, function ($line) use ($name) {
             $parts = explode('|', $line);
 
-            return $parts[0] !== $nom;
+            return $parts[0] !== $name;
         });
 
         // 3. Réécrire le fichier sans la ligne supprimée
         file_put_contents($file, implode("\n", $lines)."\n", LOCK_EX);
         // @codeCoverageIgnoreEnd
+
+        $this->addFlash('success', "Invité $name supprimé");
 
         return $this->redirectToRoute('admin_guest_index', ['page' => $page]);
     }

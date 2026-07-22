@@ -27,4 +27,10 @@ class SecurityController extends AbstractController
         // Ce code ne sera jamais exécuté
         throw new \LogicException('This should never be reached!');
     }
+
+    #[Route('/compte-bloque', name: 'user_blocked')]
+    public function blocked(): Response
+    {
+        return $this->render('admin/user_blocked.html.twig');
+    }
 }

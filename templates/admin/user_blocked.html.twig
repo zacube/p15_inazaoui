@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="alert alert-danger">
+        <h2>Compte bloqué</h2>
+        <p>Votre compte a été bloqué par l'administrateur. Contactez <a href="mailto:ina@zaoui.com">Ina Zaoui</a> pour plus d'informations.</p>
+        <a href="{{ path('admin_login') }}">Retour vers le site</a>
+    </div>
+{% endblock %}

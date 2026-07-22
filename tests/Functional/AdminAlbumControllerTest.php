@@ -109,6 +109,6 @@ final class AdminAlbumControllerTest extends WebTestCase
     {
         $url = $this->router->generate('admin_album_delete', ['id' => 999999]);
         $this->client->request('GET', $url);
-        $this->assertResponseStatusCodeSame(404);
+        $this->assertResponseRedirects();
     }
 }
