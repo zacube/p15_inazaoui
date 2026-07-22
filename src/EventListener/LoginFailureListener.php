@@ -11,7 +11,8 @@ class LoginFailureListener
 {
     public function __construct(
         private UrlGeneratorInterface $urlGenerator,
-    ) {}
+    ) {
+    }
 
     public function onLoginFailure(LoginFailureEvent $event): void
     {
