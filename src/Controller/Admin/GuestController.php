@@ -18,7 +18,7 @@ class GuestController extends AbstractController
     public function index(Request $request, UserRepository $userRepository): Response
     {
         $page = $request->query->getInt('page', 1);
-        // pagination à 25 par défaut, limitée à 100 au max)
+        // pagination à 25 par défaut, limitée à 100 au max
         $perPage = min($request->query->getInt('perPage', 25), 100);
 
         $criteria = [];
@@ -128,7 +128,6 @@ class GuestController extends AbstractController
         // 1. Lire le fichier ligne par ligne
         $file = dirname(__DIR__, 3).'/var/dev_passwords.log';
         $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        $nom = $guest->getName();
 
         // 2. Filtrer : garder toutes les lignes sauf celle qui correspond à $name
         $lines = array_filter($lines, function ($line) use ($name) {

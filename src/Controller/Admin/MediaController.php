@@ -20,7 +20,7 @@ class MediaController extends AbstractController
     public function index(Request $request, MediaRepository $mediaRepository): Response
     {
         $page = $request->query->getInt('page', 1);
-        // pagination à 25 par défaut, limitée à 100 au max)
+        // pagination à 25 par défaut, limitée à 100 au max
         $perPage = min($request->query->getInt('perPage', 25), 100);
 
         $criteria = [];
@@ -112,7 +112,7 @@ class MediaController extends AbstractController
             unlink($path);
         }
 
-        $this->addFlash('success', "Invité $name supprimé");
+        $this->addFlash('success', "Média $name supprimé");
 
         return $this->redirectToRoute('admin_media_index', ['page' => $page]);
     }
