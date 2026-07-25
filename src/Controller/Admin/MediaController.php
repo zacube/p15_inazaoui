@@ -94,14 +94,14 @@ class MediaController extends AbstractController
         if (!$this->isCsrfTokenValid('delete-media-'.$id, $request->request->get('_token'))) {
             $this->addFlash('error', 'Une erreur est survenue, veuillez recharger la page');
 
-            return $this->redirectToRoute('admin_guest_index');
+            return $this->redirectToRoute('admin_media_index');
         }
 
         $media = $mediaRepository->find($id);
         if (!$media) {
             $this->addFlash('error', 'Une erreur est survenue, veuillez recharger la page');
 
-            return $this->redirectToRoute('admin_guest_index');
+            return $this->redirectToRoute('admin_media_index');
         }
         $name = $media->getTitle();
         $path = $media->getPath();

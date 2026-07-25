@@ -23,11 +23,11 @@
                     <td><img src="{{ asset(media.path) }}" width="75" alt="{{ media.title }}"/></td>
                     <td>{{ media.title }}</td>
                     {% if is_granted('ROLE_ADMIN') %}
-                        <td>{{ media.user.name }}</td>
+                        <td>{{ media.user.name ?? '' }}</td>
                         <td>{{ media.album.name ?? '' }}</td>
                     {% endif %}
                     <td>
-                        <form method="post" action="{{ path('admin_media_delete', {id: media.id}) }}">
+                        <form method="POST" action="{{ path('admin_media_delete', {id: media.id}) }}">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete-media-' ~ media.id) }}">
                             <input type="hidden" name="page" value="{{ app.request.query.get('page', 1) }}">
                             <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce média ?')">Supprimer</button>

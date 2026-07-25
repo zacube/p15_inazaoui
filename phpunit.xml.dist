@@ -27,6 +27,7 @@
     <exclude>
       <directory>src/Fixtures</directory>
       <directory>src/Command/Migration</directory>
+      <file>src/kernel.php</file>
     </exclude>
   </source>
 </phpunit>
