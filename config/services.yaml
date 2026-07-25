@@ -29,3 +29,6 @@ services:
     App\EventListener\LoginFailureListener:
         tags:
             - { name: kernel.event_listener, event: Symfony\Component\Security\Http\Event\LoginFailureEvent, method: onLoginFailure }
+
+    App\Service\PasswordNotification\PasswordNotifierInterface:
+        alias: App\Service\PasswordNotification\FileLogPasswordNotifier

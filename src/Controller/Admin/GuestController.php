@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\User;
 use App\Form\GuestType;
 use App\Repository\UserRepository;
+use App\Service\PasswordNotification\FileLogPasswordNotifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,7 +41,7 @@ class GuestController extends AbstractController
     }
 
     #[Route('/admin/guest/add', name: 'admin_guest_add')]
-    public function add(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    public function add(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, FileLogPasswordNotifier $notifier): Response
     {
         $user = new User();
 
@@ -54,13 +55,11 @@ class GuestController extends AbstractController
 
             $user->setPassword($passwordHasher->hashPassword($user, $tempPassword));
             $user->setMustChangePassword(true);
-            // @codeCoverageIgnoreStart
-            $nom = $user->getName();
-            file_put_contents($file, "$nom|$tempPassword\n", FILE_APPEND | LOCK_EX);
-            // @codeCoverageIgnoreEnd
 
             $entityManager->persist($user);
             $entityManager->flush();
+
+            $notifier->notify($user, $tempPassword);
 
             $this->addFlash('success', "L'invité a bien été ajouté");
 
@@ -105,7 +104,7 @@ class GuestController extends AbstractController
     }
 
     #[Route('/admin/guest/delete/{id}', name: 'admin_guest_delete', methods: [Request::METHOD_POST])]
-    public function delete(int $id, Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
+    public function delete(int $id, Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, FileLogPasswordNotifier $notifier): Response
     {
         if (!$this->isCsrfTokenValid('delete-user-'.$id, $request->request->get('_token'))) {
             return $this->redirectToRoute('admin_guest_index');
@@ -121,24 +120,10 @@ class GuestController extends AbstractController
         }
 
         $name = $guest->getName();
+        $notifier->forget($guest);
+
         $entityManager->remove($guest);
         $entityManager->flush();
-
-        // @codeCoverageIgnoreStart
-        // 1. Lire le fichier ligne par ligne
-        $file = dirname(__DIR__, 3).'/var/dev_passwords.log';
-        $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-
-        // 2. Filtrer : garder toutes les lignes sauf celle qui correspond à $name
-        $lines = array_filter($lines, function ($line) use ($name) {
-            $parts = explode('|', $line);
-
-            return $parts[0] !== $name;
-        });
-
-        // 3. Réécrire le fichier sans la ligne supprimée
-        file_put_contents($file, implode("\n", $lines)."\n", LOCK_EX);
-        // @codeCoverageIgnoreEnd
 
         $this->addFlash('success', "Invité $name supprimé");
 
