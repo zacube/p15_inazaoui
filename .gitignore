@@ -17,10 +17,6 @@ uploads/
 .phpunit.cache/
 ###< phpunit/phpunit ###
 
-###> symfony/phpunit-codecoverage ###
-/public/test-coverage
-###< symfony/phpunit-codecoverage ###
-
 ###> phpstan/phpstan ###
 phpstan.neon
 ###< phpstan/phpstan ###
