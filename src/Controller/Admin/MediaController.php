@@ -63,7 +63,7 @@ class MediaController extends AbstractController
             if (!$this->isGranted('ROLE_ADMIN')) {
                 $user = $this->getUser();
                 if (!$user instanceof User) {
-                    throw new AccessDeniedException('User must be authenticated and of type User.');  // @codeCoverageIgnore
+                    throw new AccessDeniedException('L\'utilisateur doit être authentifié et de type « User ».');
                 }
                 $media->setUser($user);
             }

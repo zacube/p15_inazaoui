@@ -45,7 +45,6 @@ class GuestController extends AbstractController
     {
         $user = new User();
 
-        $file = dirname(__DIR__, 3).'/var/dev_passwords.log';
         $form = $this->createForm(GuestType::class, $user);
         $form->handleRequest($request);
 
