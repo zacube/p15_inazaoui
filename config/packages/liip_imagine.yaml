@@ -25,3 +25,6 @@ liip_imagine:
         media_ina:
             filters:
                 thumbnail: { size: [444, 666], mode: outbound }
+        media_vignetteAdmin:
+            filters:
+                thumbnail: { size: [75, 43], mode: outbound }
